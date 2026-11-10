@@ -149,7 +149,7 @@
                         android:layout_marginVertical="14dp"
                         android:background="@color/divider_color" />
 
-                    <!-- Local Wi-Fi URL row -->
+                    <!-- Local Wi-Fi URL container -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -162,46 +162,52 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:background="@drawable/bg_rounded_card"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="8dp">
+                        android:orientation="vertical"
+                        android:padding="12dp">
 
+                        <!-- Line 1: Full URL -->
                         <TextView
                             android:id="@+id/text_web_local_url"
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:ellipsize="end"
-                            android:maxLines="1"
                             android:text="http://192.168.1.xxx:xxxx"
                             android:textColor="@color/primary_blue"
-                            android:textSize="14sp"
+                            android:textSize="15sp"
                             android:textStyle="bold" />
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_change_port"
-                            style="@style/Widget.MaterialComponents.Button.TextButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="36dp"
-                            android:minWidth="0dp"
-                            android:text="नया पोर्ट"
-                            android:textColor="@color/text_secondary"
-                            app:icon="@drawable/ic_refresh"
-                            app:iconSize="14dp"
-                            app:iconTint="@color/text_secondary" />
+                        <!-- Line 2: Action Buttons (नया पोर्ट & कॉपी) on next line -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:gravity="end"
+                            android:orientation="horizontal">
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_copy_local_url"
-                            style="@style/Widget.MaterialComponents.Button.TextButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="36dp"
-                            android:minWidth="0dp"
-                            android:text="कॉपी"
-                            android:textColor="@color/primary_blue"
-                            app:icon="@drawable/ic_copy"
-                            app:iconSize="14dp"
-                            app:iconTint="@color/primary_blue" />
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_change_port"
+                                style="@style/Widget.MaterialComponents.Button.TextButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:minWidth="0dp"
+                                android:text="नया पोर्ट"
+                                android:textColor="@color/text_secondary"
+                                app:icon="@drawable/ic_refresh"
+                                app:iconSize="14dp"
+                                app:iconTint="@color/text_secondary" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_copy_local_url"
+                                style="@style/Widget.MaterialComponents.Button.TextButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:layout_marginStart="8dp"
+                                android:minWidth="0dp"
+                                android:text="कॉपी"
+                                android:textColor="@color/primary_blue"
+                                app:icon="@drawable/ic_copy"
+                                app:iconSize="14dp"
+                                app:iconTint="@color/primary_blue" />
+                        </LinearLayout>
                     </LinearLayout>
 
                     <!-- VPN IP Address row -->
@@ -264,6 +270,21 @@
                             android:text="मोबाइल (SIM नेट) व PC (ब्रॉडबैंड) अलग होने पर भी यह लिंक Chrome में खोलें।"
                             android:textColor="@color/text_secondary"
                             android:textSize="11sp" />
+
+                        <!-- Dedicated Scan PC QR Button -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_scan_github_qr"
+                            android:layout_width="match_parent"
+                            android:layout_height="52dp"
+                            android:layout_marginTop="12dp"
+                            android:backgroundTint="@color/accent_gold"
+                            android:text="📷 PC का QR कोड स्कैन करें (Scan QR)"
+                            android:textAllCaps="false"
+                            android:textColor="@color/text_primary"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            app:cornerRadius="12dp"
+                            app:elevation="2dp" />
 
                         <LinearLayout
                             android:layout_width="match_parent"

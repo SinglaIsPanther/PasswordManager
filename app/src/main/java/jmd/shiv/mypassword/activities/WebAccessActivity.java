@@ -20,6 +20,20 @@ import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
 
+import android.annotation.SuppressLint;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
+import com.google.mlkit.vision.barcode.common.Barcode;
+import javax.crypto.SecretKey;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import jmd.shiv.mypassword.models.PasswordRecord;
+
 import jmd.shiv.mypassword.R;
 import jmd.shiv.mypassword.database.PasswordRepository;
 import jmd.shiv.mypassword.managers.ClipboardManagerHelper;
@@ -52,6 +66,8 @@ public class WebAccessActivity extends BaseSecurityActivity implements WebServer
 
     private LinearLayout layoutPairedDevices;
     private TextView textNoPairedDevices;
+    private MaterialButton btnScanGithubQr;
+    private WebView p2pWebView;
 
     private PasswordRepository repository;
     private final Handler countdownHandler = new Handler(Looper.getMainLooper());
@@ -104,6 +120,7 @@ public class WebAccessActivity extends BaseSecurityActivity implements WebServer
 
         layoutPairedDevices = findViewById(R.id.layout_paired_devices_container);
         textNoPairedDevices = findViewById(R.id.text_no_paired_devices);
+        btnScanGithubQr = findViewById(R.id.btn_scan_github_qr);
     }
 
     private void setupClickListeners() {
@@ -171,6 +188,10 @@ public class WebAccessActivity extends BaseSecurityActivity implements WebServer
                     Toast.makeText(this, "शेयर करने में विफलता!", Toast.LENGTH_SHORT).show();
                 }
             });
+        }
+
+        if (btnScanGithubQr != null) {
+            btnScanGithubQr.setOnClickListener(v -> startQrScanner());
         }
 
         btnRefreshPairingCode.setOnClickListener(v -> {
@@ -359,5 +380,222 @@ public class WebAccessActivity extends BaseSecurityActivity implements WebServer
                     Toast.makeText(this, "पेयरिंग अनुरोध अस्वीकार किया गया।", Toast.LENGTH_SHORT).show();
                 })
                 .show();
+    }
+
+    // =========================================================================
+    // GitHub Web Vault - QR Scanner & P2P WebRTC Sync
+    // =========================================================================
+
+    private void startQrScanner() {
+        try {
+            GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
+                    .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+                    .build();
+            GmsBarcodeScanner scanner = GmsBarcodeScanning.getClient(this, options);
+            scanner.startScan()
+                    .addOnSuccessListener(barcode -> {
+                        String raw = barcode.getRawValue();
+                        if (raw != null && !raw.isEmpty()) {
+                            handleScannedQrPayload(raw);
+                        }
+                    })
+                    .addOnCanceledListener(() -> Toast.makeText(this, "QR स्कैन रद्द किया गया।", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(this, "स्कैनर विफल: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        } catch (Exception e) {
+            Toast.makeText(this, "स्कैनर प्रारंभ करने में त्रुटि!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void handleScannedQrPayload(String raw) {
+        try {
+            String targetPeerId = null;
+            if (raw.startsWith("{") && raw.contains("peerId")) {
+                JSONObject json = new JSONObject(raw);
+                targetPeerId = json.getString("peerId");
+            } else if (raw.startsWith("pm-vault-")) {
+                targetPeerId = raw.trim();
+            }
+
+            if (targetPeerId != null && !targetPeerId.isEmpty()) {
+                connectToPeer(targetPeerId);
+            } else {
+                Toast.makeText(this, "अमान्य Web Vault QR कोड!", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "QR कोड पार्स करने में त्रुटि!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private void connectToPeer(String peerId) {
+        Toast.makeText(this, "PC से कनेक्ट किया जा रहा है...", Toast.LENGTH_SHORT).show();
+
+        if (p2pWebView == null) {
+            p2pWebView = new WebView(this);
+            WebSettings webSettings = p2pWebView.getSettings();
+            webSettings.setJavaScriptEnabled(true);
+            webSettings.setDomStorageEnabled(true);
+            p2pWebView.addJavascriptInterface(new P2pBridge(), "AndroidBridge");
+            p2pWebView.setWebViewClient(new WebViewClient());
+        }
+
+        String html = "<!DOCTYPE html><html><head>"
+                + "<script src=\"https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js\"></script>"
+                + "</head><body><script>"
+                + "try {"
+                + "  let peer = new Peer({ debug: 1 });"
+                + "  peer.on('open', (id) => {"
+                + "    let conn = peer.connect('" + peerId + "');"
+                + "    conn.on('open', () => {"
+                + "      window.p2pConn = conn;"
+                + "      AndroidBridge.onP2pConnected();"
+                + "    });"
+                + "    conn.on('data', (data) => {"
+                + "      AndroidBridge.onP2pData(typeof data === 'string' ? data : JSON.stringify(data));"
+                + "    });"
+                + "    conn.on('close', () => AndroidBridge.onP2pClosed());"
+                + "    conn.on('error', (err) => AndroidBridge.onP2pError(err.message || 'Error'));"
+                + "  });"
+                + "  peer.on('error', (err) => AndroidBridge.onP2pError(err.message || 'Peer Error'));"
+                + "  window.sendPayload = (jsonStr) => {"
+                + "    if (window.p2pConn && window.p2pConn.open) {"
+                + "      try { window.p2pConn.send(JSON.parse(jsonStr)); } catch(e) { window.p2pConn.send(jsonStr); }"
+                + "    }"
+                + "  };"
+                + "} catch(e) { AndroidBridge.onP2pError(e.message); }"
+                + "</script></body></html>";
+
+        p2pWebView.loadDataWithBaseURL("https://singlaispanther.github.io", html, "text/html", "UTF-8", null);
+    }
+
+    public class P2pBridge {
+        @JavascriptInterface
+        public void onP2pConnected() {
+            runOnUiThread(() -> {
+                Toast.makeText(WebAccessActivity.this, "PC Chrome से सफलता पूर्वक कनेक्ट हो गया!", Toast.LENGTH_LONG).show();
+                syncPasswordsToPc();
+            });
+        }
+
+        @JavascriptInterface
+        public void onP2pData(String jsonStr) {
+            runOnUiThread(() -> handleIncomingP2pData(jsonStr));
+        }
+
+        @JavascriptInterface
+        public void onP2pClosed() {
+            runOnUiThread(() -> Toast.makeText(WebAccessActivity.this, "PC से कनेक्शन समाप्त हुआ", Toast.LENGTH_SHORT).show());
+        }
+
+        @JavascriptInterface
+        public void onP2pError(String err) {
+            runOnUiThread(() -> Toast.makeText(WebAccessActivity.this, "P2P त्रुटि: " + err, Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    private void syncPasswordsToPc() {
+        try {
+            if (repository == null) {
+                repository = new PasswordRepository(this);
+            }
+            List<PasswordRecord> list = repository.getAllPasswordRecords("RECENT");
+            SecretKey activeKey = jmd.shiv.mypassword.security.AuthenticationManager.getInstance().getActiveMasterKey();
+
+            JSONObject msg = new JSONObject();
+            msg.put("action", "SYNC_VAULT");
+            JSONArray arr = new JSONArray();
+            for (PasswordRecord r : list) {
+                JSONObject obj = new JSONObject();
+                obj.put("id", r.getId());
+                obj.put("title", r.getWebsiteName() != null ? r.getWebsiteName() : "");
+                obj.put("url", r.getWebsiteUrl() != null ? r.getWebsiteUrl() : "");
+                obj.put("category", r.getRole() != null ? r.getRole() : "");
+
+                String user = "";
+                String pass = "";
+                String notes = "";
+                if (activeKey != null) {
+                    try {
+                        user = jmd.shiv.mypassword.security.EncryptionManager.decryptBytesToString(r.getUsernameEncrypted(), activeKey);
+                    } catch (Exception ignored) {}
+                    try {
+                        pass = jmd.shiv.mypassword.security.EncryptionManager.decryptBytesToString(r.getPasswordEncrypted(), activeKey);
+                    } catch (Exception ignored) {}
+                    try {
+                        notes = jmd.shiv.mypassword.security.EncryptionManager.decryptBytesToString(r.getNotesEncrypted(), activeKey);
+                    } catch (Exception ignored) {}
+                }
+
+                obj.put("username", user != null ? user : "");
+                obj.put("password", pass != null ? pass : "");
+                obj.put("notes", notes != null ? notes : "");
+                arr.put(obj);
+            }
+            msg.put("records", arr);
+
+            String escaped = msg.toString().replace("'", "\\'");
+            if (p2pWebView != null) {
+                p2pWebView.evaluateJavascript("window.sendPayload('" + escaped + "');", null);
+            }
+            Toast.makeText(this, list.size() + " पासवर्ड्स PC स्क्रीन पर भेजे गए!", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "सिंक करने में त्रुटि: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void handleIncomingP2pData(String jsonStr) {
+        try {
+            JSONObject msg = new JSONObject(jsonStr);
+            String action = msg.optString("action");
+            if ("GET_PASSWORDS".equals(action)) {
+                syncPasswordsToPc();
+            } else if ("ADD_PASSWORD".equals(action)) {
+                JSONObject r = msg.optJSONObject("record");
+                if (r != null) {
+                    SecretKey activeKey = jmd.shiv.mypassword.security.AuthenticationManager.getInstance().getActiveMasterKey();
+                    PasswordRecord newRec = new PasswordRecord();
+                    newRec.setWebsiteName(r.optString("title"));
+                    newRec.setWebsiteUrl(r.optString("url"));
+                    newRec.setRole(r.optString("category", "General"));
+
+                    String user = r.optString("username");
+                    String pass = r.optString("password");
+                    String notes = r.optString("notes");
+
+                    if (activeKey != null) {
+                        try {
+                            newRec.setUsernameEncrypted(jmd.shiv.mypassword.security.EncryptionManager.encryptStringToBytes(user, activeKey));
+                            newRec.setPasswordEncrypted(jmd.shiv.mypassword.security.EncryptionManager.encryptStringToBytes(pass, activeKey));
+                            newRec.setNotesEncrypted(jmd.shiv.mypassword.security.EncryptionManager.encryptStringToBytes(notes, activeKey));
+                        } catch (Exception ignored) {}
+                    }
+
+                    if (repository == null) {
+                        repository = new PasswordRepository(this);
+                    }
+                    repository.savePasswordRecord(newRec);
+
+                    Toast.makeText(this, "PC से नया पासवर्ड सेव हुआ: " + newRec.getWebsiteName(), Toast.LENGTH_LONG).show();
+
+                    JSONObject ack = new JSONObject();
+                    ack.put("action", "SAVE_SUCCESS");
+                    String escaped = ack.toString().replace("'", "\\'");
+                    if (p2pWebView != null) {
+                        p2pWebView.evaluateJavascript("window.sendPayload('" + escaped + "');", null);
+                    }
+                    syncPasswordsToPc();
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (p2pWebView != null) {
+            p2pWebView.destroy();
+            p2pWebView = null;
+        }
     }
 }

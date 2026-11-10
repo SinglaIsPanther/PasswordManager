@@ -633,12 +633,19 @@
                 sendEncrypted({ action: "GET_PASSWORDS" });
             });
 
-            peerConnection.on('data', async (encryptedPayload) => {
+            peerConnection.on('data', async (payload) => {
                 try {
-                    const decrypted = await decryptMessage(encryptedPayload);
+                    let decrypted;
+                    if (payload && payload.iv && payload.data) {
+                        decrypted = await decryptMessage(payload);
+                    } else if (typeof payload === 'string') {
+                        decrypted = JSON.parse(payload);
+                    } else {
+                        decrypted = payload;
+                    }
                     handleIncomingData(decrypted);
                 } catch (e) {
-                    console.error("Decryption failed:", e);
+                    console.error("Payload handling error:", e);
                 }
             });
 
