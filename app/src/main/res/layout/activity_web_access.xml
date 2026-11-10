@@ -228,6 +228,84 @@
                             android:textColor="@color/text_secondary"
                             android:textSize="13sp" />
                     </LinearLayout>
+
+                    <!-- Online Web Vault (GitHub Pages) -->
+                    <LinearLayout
+                        android:id="@+id/layout_github_web_vault"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:background="@drawable/bg_rounded_card"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🌐 ऑनलाइन वेब वॉल्ट (GitHub Pages Web Link):"
+                            android:textColor="@color/primary_blue"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/text_github_web_url"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="https://singlaispanther.github.io/PasswordManager/"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="मोबाइल (SIM नेट) व PC (ब्रॉडबैंड) अलग होने पर भी यह लिंक Chrome में खोलें।"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:gravity="end"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_share_github_url"
+                                style="@style/Widget.MaterialComponents.Button.TextButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:minWidth="0dp"
+                                android:text="शेयर करें"
+                                android:textColor="@color/text_secondary" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_copy_github_url"
+                                style="@style/Widget.MaterialComponents.Button.TextButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:minWidth="0dp"
+                                android:text="कॉपी करें"
+                                android:textColor="@color/primary_blue"
+                                app:icon="@drawable/ic_copy"
+                                app:iconSize="14dp"
+                                app:iconTint="@color/primary_blue" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_open_github_url"
+                                style="@style/Widget.MaterialComponents.Button.TextButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:minWidth="0dp"
+                                android:text="खोलें"
+                                android:textColor="@color/primary_blue"
+                                app:icon="@drawable/ic_open_in_new"
+                                app:iconSize="14dp"
+                                app:iconTint="@color/primary_blue" />
+                        </LinearLayout>
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

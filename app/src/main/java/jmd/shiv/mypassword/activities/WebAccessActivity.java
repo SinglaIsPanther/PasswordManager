@@ -136,6 +136,43 @@ public class WebAccessActivity extends BaseSecurityActivity implements WebServer
             }
         });
 
+        final String githubWebUrl = "https://singlaispanther.github.io/PasswordManager/";
+
+        View btnCopyGithub = findViewById(R.id.btn_copy_github_url);
+        if (btnCopyGithub != null) {
+            btnCopyGithub.setOnClickListener(v -> {
+                ClipboardManagerHelper.copyToClipboard(this, "GitHub Web Vault", githubWebUrl, false);
+                Toast.makeText(this, "ऑनलाइन वेब वॉल्ट लिंक कॉपी हो गया!", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        View btnOpenGithub = findViewById(R.id.btn_open_github_url);
+        if (btnOpenGithub != null) {
+            btnOpenGithub.setOnClickListener(v -> {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(githubWebUrl));
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Toast.makeText(this, "ब्राउज़र खोलने में विफलता!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        View btnShareGithub = findViewById(R.id.btn_share_github_url);
+        if (btnShareGithub != null) {
+            btnShareGithub.setOnClickListener(v -> {
+                try {
+                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                    shareIntent.setType("text/plain");
+                    shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Password Manager Web Vault");
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, "Open Password Manager in Chrome on PC: " + githubWebUrl);
+                    startActivity(Intent.createChooser(shareIntent, "वेब वॉल्ट लिंक शेयर करें"));
+                } catch (Exception e) {
+                    Toast.makeText(this, "शेयर करने में विफलता!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
         btnRefreshPairingCode.setOnClickListener(v -> {
             PairingManager.getInstance().generateNewPairingCode();
             updatePairingCodeAndQr();
