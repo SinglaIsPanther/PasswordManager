@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dribbble Axion Aesthetic: Atmospheric Slate Steel Blue & Frosted Deep Slate -->
+    <color name="bg_light">#3B5368</color>
+    <color name="bg_slate_dark">#283D4F</color>
+    <color name="surface_white">#1E364A</color>
+    <color name="surface_card_alt">#162939</color>
+    <color name="surface_frosted">#243C52</color>
+
+    <!-- Dribbble Signature Luminous Sunburst Yellow (Accent Arc, Text Pop & FAB) -->
+    <color name="accent_gold">#FACC15</color>
+    <color name="accent_gold_dark">#EAB308</color>
+    <color name="accent_gold_light">#42381C</color>
+    <color name="favorite_gold">#FACC15</color>
+    <color name="warning_orange">#F59E0B</color>
+    <color name="warning_light">#3B2E14</color>
+
+    <!-- Electric Cyan & Ice Blue (Connectivity & Sub-Chips) -->
+    <color name="primary_blue">#38BDF8</color>
+    <color name="primary_blue_dark">#0284C7</color>
+    <color name="primary_blue_light">#1E3A52</color>
+    <color name="primary_blue_container">#1A3247</color>
+    <color name="accent_cyan">#38BDF8</color>
+    <color name="accent_cyan_dark">#0284C7</color>
+    <color name="accent_cyan_light">#1A3348</color>
+    <color name="accent_teal">#2DD4BF</color>
+    <color name="accent_teal_light">#133834</color>
+
+    <!-- Status & Alerts -->
+    <color name="success_green">#34D399</color>
+    <color name="success_green_dark">#059669</color>
+    <color name="success_green_light">#133B2E</color>
+    <color name="error_red">#FB7185</color>
+    <color name="error_light">#401E26</color>
+
+    <!-- High-Legibility Frosted Typography -->
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#CBD5E1</color>
+    <color name="text_hint">#8FA5B8</color>
+    <color name="divider_color">#45637D</color>
+    <color name="card_stroke">#486682</color>
+
+    <!-- Glassmorphic Details -->
+    <color name="chip_bg">#2A455E</color>
+    <color name="header_navy">#1B3145</color>
+    <color name="ic_launcher_background">#1E364A</color>
+</resources>

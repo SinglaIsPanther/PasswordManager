@@ -1,0 +1,360 @@
+Compiled from "NanoWSD.java"
+public abstract class fi.iki.elonen.NanoWSD extends fi.iki.elonen.NanoHTTPD {
+  private static final java.util.logging.Logger LOG;
+
+  public static final java.lang.String HEADER_UPGRADE;
+
+  public static final java.lang.String HEADER_UPGRADE_VALUE;
+
+  public static final java.lang.String HEADER_CONNECTION;
+
+  public static final java.lang.String HEADER_CONNECTION_VALUE;
+
+  public static final java.lang.String HEADER_WEBSOCKET_VERSION;
+
+  public static final java.lang.String HEADER_WEBSOCKET_VERSION_VALUE;
+
+  public static final java.lang.String HEADER_WEBSOCKET_KEY;
+
+  public static final java.lang.String HEADER_WEBSOCKET_ACCEPT;
+
+  public static final java.lang.String HEADER_WEBSOCKET_PROTOCOL;
+
+  private static final java.lang.String WEBSOCKET_KEY_MAGIC;
+
+  private static final char[] ALPHABET;
+
+  private static java.lang.String encodeBase64(byte[]);
+    Code:
+       0: aload_0
+       1: arraylength
+       2: istore_1
+       3: iload_1
+       4: iconst_2
+       5: iadd
+       6: iconst_3
+       7: idiv
+       8: iconst_4
+       9: imul
+      10: newarray       char
+      12: astore_2
+      13: iconst_0
+      14: istore_3
+      15: iconst_0
+      16: istore        4
+      18: iload         4
+      20: iload_1
+      21: if_icmpge     163
+      24: aload_0
+      25: iload         4
+      27: iinc          4, 1
+      30: baload
+      31: istore        5
+      33: iload         4
+      35: iload_1
+      36: if_icmpge     49
+      39: aload_0
+      40: iload         4
+      42: iinc          4, 1
+      45: baload
+      46: goto          50
+      49: iconst_0
+      50: istore        6
+      52: iload         4
+      54: iload_1
+      55: if_icmpge     68
+      58: aload_0
+      59: iload         4
+      61: iinc          4, 1
+      64: baload
+      65: goto          69
+      68: iconst_0
+      69: istore        7
+      71: bipush        63
+      73: istore        8
+      75: aload_2
+      76: iload_3
+      77: iinc          3, 1
+      80: getstatic     #2                  // Field ALPHABET:[C
+      83: iload         5
+      85: iconst_2
+      86: ishr
+      87: iload         8
+      89: iand
+      90: caload
+      91: castore
+      92: aload_2
+      93: iload_3
+      94: iinc          3, 1
+      97: getstatic     #2                  // Field ALPHABET:[C
+     100: iload         5
+     102: iconst_4
+     103: ishl
+     104: iload         6
+     106: sipush        255
+     109: iand
+     110: iconst_4
+     111: ishr
+     112: ior
+     113: iload         8
+     115: iand
+     116: caload
+     117: castore
+     118: aload_2
+     119: iload_3
+     120: iinc          3, 1
+     123: getstatic     #2                  // Field ALPHABET:[C
+     126: iload         6
+     128: iconst_2
+     129: ishl
+     130: iload         7
+     132: sipush        255
+     135: iand
+     136: bipush        6
+     138: ishr
+     139: ior
+     140: iload         8
+     142: iand
+     143: caload
+     144: castore
+     145: aload_2
+     146: iload_3
+     147: iinc          3, 1
+     150: getstatic     #2                  // Field ALPHABET:[C
+     153: iload         7
+     155: iload         8
+     157: iand
+     158: caload
+     159: castore
+     160: goto          18
+     163: iload_1
+     164: iconst_3
+     165: irem
+     166: lookupswitch  { // 2
+                     1: 192
+                     2: 200
+               default: 208
+          }
+     192: aload_2
+     193: iinc          3, -1
+     196: iload_3
+     197: bipush        61
+     199: castore
+     200: aload_2
+     201: iinc          3, -1
+     204: iload_3
+     205: bipush        61
+     207: castore
+     208: new           #3                  // class java/lang/String
+     211: dup
+     212: aload_2
+     213: invokespecial #4                  // Method java/lang/String."<init>":([C)V
+     216: areturn
+
+  public static java.lang.String makeAcceptKey(java.lang.String) throws java.security.NoSuchAlgorithmException;
+    Code:
+       0: ldc           #5                  // String SHA-1
+       2: invokestatic  #6                  // Method java/security/MessageDigest.getInstance:(Ljava/lang/String;)Ljava/security/MessageDigest;
+       5: astore_1
+       6: new           #7                  // class java/lang/StringBuilder
+       9: dup
+      10: invokespecial #8                  // Method java/lang/StringBuilder."<init>":()V
+      13: aload_0
+      14: invokevirtual #9                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      17: ldc           #10                 // String 258EAFA5-E914-47DA-95CA-C5AB0DC85B11
+      19: invokevirtual #9                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      22: invokevirtual #11                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      25: astore_2
+      26: aload_1
+      27: aload_2
+      28: invokevirtual #12                 // Method java/lang/String.getBytes:()[B
+      31: iconst_0
+      32: aload_2
+      33: invokevirtual #13                 // Method java/lang/String.length:()I
+      36: invokevirtual #14                 // Method java/security/MessageDigest.update:([BII)V
+      39: aload_1
+      40: invokevirtual #15                 // Method java/security/MessageDigest.digest:()[B
+      43: astore_3
+      44: aload_3
+      45: invokestatic  #16                 // Method encodeBase64:([B)Ljava/lang/String;
+      48: areturn
+
+  public fi.iki.elonen.NanoWSD(int);
+    Code:
+       0: aload_0
+       1: iload_1
+       2: invokespecial #17                 // Method fi/iki/elonen/NanoHTTPD."<init>":(I)V
+       5: return
+
+  public fi.iki.elonen.NanoWSD(java.lang.String, int);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: iload_2
+       3: invokespecial #18                 // Method fi/iki/elonen/NanoHTTPD."<init>":(Ljava/lang/String;I)V
+       6: return
+
+  private boolean isWebSocketConnectionHeader(java.util.Map<java.lang.String, java.lang.String>);
+    Code:
+       0: aload_1
+       1: ldc           #19                 // String connection
+       3: invokeinterface #20,  2           // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+       8: checkcast     #3                  // class java/lang/String
+      11: astore_2
+      12: aload_2
+      13: ifnull        35
+      16: aload_2
+      17: invokevirtual #21                 // Method java/lang/String.toLowerCase:()Ljava/lang/String;
+      20: ldc           #22                 // String Upgrade
+      22: invokevirtual #21                 // Method java/lang/String.toLowerCase:()Ljava/lang/String;
+      25: invokevirtual #23                 // Method java/lang/String.contains:(Ljava/lang/CharSequence;)Z
+      28: ifeq          35
+      31: iconst_1
+      32: goto          36
+      35: iconst_0
+      36: ireturn
+
+  protected boolean isWebsocketRequested(fi.iki.elonen.NanoHTTPD$IHTTPSession);
+    Code:
+       0: aload_1
+       1: invokeinterface #24,  1           // InterfaceMethod fi/iki/elonen/NanoHTTPD$IHTTPSession.getHeaders:()Ljava/util/Map;
+       6: astore_2
+       7: aload_2
+       8: ldc           #25                 // String upgrade
+      10: invokeinterface #20,  2           // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+      15: checkcast     #3                  // class java/lang/String
+      18: astore_3
+      19: aload_0
+      20: aload_2
+      21: invokespecial #26                 // Method isWebSocketConnectionHeader:(Ljava/util/Map;)Z
+      24: istore        4
+      26: ldc           #27                 // String websocket
+      28: aload_3
+      29: invokevirtual #28                 // Method java/lang/String.equalsIgnoreCase:(Ljava/lang/String;)Z
+      32: istore        5
+      34: iload         5
+      36: ifeq          48
+      39: iload         4
+      41: ifeq          48
+      44: iconst_1
+      45: goto          49
+      48: iconst_0
+      49: ireturn
+
+  protected abstract fi.iki.elonen.NanoWSD$WebSocket openWebSocket(fi.iki.elonen.NanoHTTPD$IHTTPSession);
+
+  public fi.iki.elonen.NanoHTTPD$Response serve(fi.iki.elonen.NanoHTTPD$IHTTPSession);
+    Code:
+       0: aload_1
+       1: invokeinterface #24,  1           // InterfaceMethod fi/iki/elonen/NanoHTTPD$IHTTPSession.getHeaders:()Ljava/util/Map;
+       6: astore_2
+       7: aload_0
+       8: aload_1
+       9: invokevirtual #29                 // Method isWebsocketRequested:(Lfi/iki/elonen/NanoHTTPD$IHTTPSession;)Z
+      12: ifeq          182
+      15: ldc           #30                 // String 13
+      17: aload_2
+      18: ldc           #31                 // String sec-websocket-version
+      20: invokeinterface #20,  2           // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+      25: checkcast     #3                  // class java/lang/String
+      28: invokevirtual #28                 // Method java/lang/String.equalsIgnoreCase:(Ljava/lang/String;)Z
+      31: ifne          72
+      34: getstatic     #32                 // Field fi/iki/elonen/NanoHTTPD$Response$Status.BAD_REQUEST:Lfi/iki/elonen/NanoHTTPD$Response$Status;
+      37: ldc           #33                 // String text/plain
+      39: new           #7                  // class java/lang/StringBuilder
+      42: dup
+      43: invokespecial #8                  // Method java/lang/StringBuilder."<init>":()V
+      46: ldc           #34                 // String Invalid Websocket-Version
+      48: invokevirtual #9                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      51: aload_2
+      52: ldc           #31                 // String sec-websocket-version
+      54: invokeinterface #20,  2           // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+      59: checkcast     #3                  // class java/lang/String
+      62: invokevirtual #9                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      65: invokevirtual #11                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      68: invokestatic  #35                 // Method newFixedLengthResponse:(Lfi/iki/elonen/NanoHTTPD$Response$IStatus;Ljava/lang/String;Ljava/lang/String;)Lfi/iki/elonen/NanoHTTPD$Response;
+      71: areturn
+      72: aload_2
+      73: ldc           #36                 // String sec-websocket-key
+      75: invokeinterface #37,  2           // InterfaceMethod java/util/Map.containsKey:(Ljava/lang/Object;)Z
+      80: ifne          94
+      83: getstatic     #32                 // Field fi/iki/elonen/NanoHTTPD$Response$Status.BAD_REQUEST:Lfi/iki/elonen/NanoHTTPD$Response$Status;
+      86: ldc           #33                 // String text/plain
+      88: ldc           #38                 // String Missing Websocket-Key
+      90: invokestatic  #35                 // Method newFixedLengthResponse:(Lfi/iki/elonen/NanoHTTPD$Response$IStatus;Ljava/lang/String;Ljava/lang/String;)Lfi/iki/elonen/NanoHTTPD$Response;
+      93: areturn
+      94: aload_0
+      95: aload_1
+      96: invokevirtual #39                 // Method openWebSocket:(Lfi/iki/elonen/NanoHTTPD$IHTTPSession;)Lfi/iki/elonen/NanoWSD$WebSocket;
+      99: astore_3
+     100: aload_3
+     101: invokevirtual #40                 // Method fi/iki/elonen/NanoWSD$WebSocket.getHandshakeResponse:()Lfi/iki/elonen/NanoHTTPD$Response;
+     104: astore        4
+     106: aload         4
+     108: ldc           #41                 // String sec-websocket-accept
+     110: aload_2
+     111: ldc           #36                 // String sec-websocket-key
+     113: invokeinterface #20,  2           // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+     118: checkcast     #3                  // class java/lang/String
+     121: invokestatic  #42                 // Method makeAcceptKey:(Ljava/lang/String;)Ljava/lang/String;
+     124: invokevirtual #43                 // Method fi/iki/elonen/NanoHTTPD$Response.addHeader:(Ljava/lang/String;Ljava/lang/String;)V
+     127: goto          143
+     130: astore        5
+     132: getstatic     #45                 // Field fi/iki/elonen/NanoHTTPD$Response$Status.INTERNAL_ERROR:Lfi/iki/elonen/NanoHTTPD$Response$Status;
+     135: ldc           #33                 // String text/plain
+     137: ldc           #46                 // String The SHA-1 Algorithm required for websockets is not available on the server.
+     139: invokestatic  #35                 // Method newFixedLengthResponse:(Lfi/iki/elonen/NanoHTTPD$Response$IStatus;Ljava/lang/String;Ljava/lang/String;)Lfi/iki/elonen/NanoHTTPD$Response;
+     142: areturn
+     143: aload_2
+     144: ldc           #47                 // String sec-websocket-protocol
+     146: invokeinterface #37,  2           // InterfaceMethod java/util/Map.containsKey:(Ljava/lang/Object;)Z
+     151: ifeq          179
+     154: aload         4
+     156: ldc           #47                 // String sec-websocket-protocol
+     158: aload_2
+     159: ldc           #47                 // String sec-websocket-protocol
+     161: invokeinterface #20,  2           // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+     166: checkcast     #3                  // class java/lang/String
+     169: ldc           #48                 // String ,
+     171: invokevirtual #49                 // Method java/lang/String.split:(Ljava/lang/String;)[Ljava/lang/String;
+     174: iconst_0
+     175: aaload
+     176: invokevirtual #43                 // Method fi/iki/elonen/NanoHTTPD$Response.addHeader:(Ljava/lang/String;Ljava/lang/String;)V
+     179: aload         4
+     181: areturn
+     182: aload_0
+     183: aload_1
+     184: invokevirtual #50                 // Method serveHttp:(Lfi/iki/elonen/NanoHTTPD$IHTTPSession;)Lfi/iki/elonen/NanoHTTPD$Response;
+     187: areturn
+    Exception table:
+       from    to  target type
+         106   127   130   Class java/security/NoSuchAlgorithmException
+
+  protected fi.iki.elonen.NanoHTTPD$Response serveHttp(fi.iki.elonen.NanoHTTPD$IHTTPSession);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: invokespecial #51                 // Method fi/iki/elonen/NanoHTTPD.serve:(Lfi/iki/elonen/NanoHTTPD$IHTTPSession;)Lfi/iki/elonen/NanoHTTPD$Response;
+       5: areturn
+
+  protected boolean useGzipWhenAccepted(fi.iki.elonen.NanoHTTPD$Response);
+    Code:
+       0: iconst_0
+       1: ireturn
+
+  static java.util.logging.Logger access$300();
+    Code:
+       0: getstatic     #1                  // Field LOG:Ljava/util/logging/Logger;
+       3: areturn
+
+  static {};
+    Code:
+       0: ldc_w         #52                 // class fi/iki/elonen/NanoWSD
+       3: invokevirtual #53                 // Method java/lang/Class.getName:()Ljava/lang/String;
+       6: invokestatic  #54                 // Method java/util/logging/Logger.getLogger:(Ljava/lang/String;)Ljava/util/logging/Logger;
+       9: putstatic     #1                  // Field LOG:Ljava/util/logging/Logger;
+      12: ldc           #55                 // String ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
+      14: invokevirtual #56                 // Method java/lang/String.toCharArray:()[C
+      17: putstatic     #2                  // Field ALPHABET:[C
+      20: return
+}

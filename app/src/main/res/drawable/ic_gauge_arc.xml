@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="160dp"
+    android:height="90dp"
+    android:viewportWidth="160"
+    android:viewportHeight="90">
+    
+    <!-- Background Track Arc -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#3A536B"
+        android:strokeWidth="12"
+        android:strokeLineCap="round"
+        android:pathData="M 16,80 A 64,64 0 0,1 144,80" />
+
+    <!-- Active Luminous Sunburst Yellow Arc -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="@color/accent_gold"
+        android:strokeWidth="12"
+        android:strokeLineCap="round"
+        android:pathData="M 16,80 A 64,64 0 0,1 118,26" />
+</vector>

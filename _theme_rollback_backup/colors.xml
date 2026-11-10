@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Modern Tech Indigo Palette (Primary Brand - Replaces monotone generic blue) -->
+    <color name="primary_blue">#4F46E5</color>
+    <color name="primary_blue_dark">#3730A3</color>
+    <color name="primary_blue_light">#EEF2FF</color>
+    <color name="primary_blue_container">#E0E7FF</color>
+
+    <!-- Cyber Cyan & Sky (Modern Connectivity & Web Access) -->
+    <color name="accent_cyan">#0284C7</color>
+    <color name="accent_cyan_dark">#0369A1</color>
+    <color name="accent_cyan_light">#E0F2FE</color>
+
+    <!-- Modern Emerald & Teal (Security, Vault & Biometric) -->
+    <color name="accent_teal">#0D9488</color>
+    <color name="accent_teal_light">#CCFBF1</color>
+    <color name="success_green">#10B981</color>
+    <color name="success_green_dark">#059669</color>
+    <color name="success_green_light">#D1FAE5</color>
+
+    <!-- Amber & Gold (Favorites & Warnings) -->
+    <color name="warning_orange">#F59E0B</color>
+    <color name="warning_light">#FEF3C7</color>
+    <color name="favorite_gold">#F59E0B</color>
+
+    <!-- Modern Rose Red (Alerts & Destructive actions) -->
+    <color name="error_red">#E11D48</color>
+    <color name="error_light">#FFE4E6</color>
+
+    <!-- Sleek High-Contrast Canvas & Surfaces -->
+    <color name="bg_light">#F1F5F9</color>
+    <color name="surface_white">#FFFFFF</color>
+    <color name="surface_card_alt">#F8FAFC</color>
+
+    <!-- Executive Charcoal & Slate Typography (Prevents monotonous all-blue text) -->
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#475569</color>
+    <color name="text_hint">#64748B</color>
+    <color name="divider_color">#E2E8F0</color>
+    <color name="card_stroke">#E2E8F0</color>
+
+    <!-- Component Accents -->
+    <color name="chip_bg">#E0E7FF</color>
+    <color name="header_navy">#0F172A</color>
+    <color name="ic_launcher_background">#1E1B4B</color>
+</resources>

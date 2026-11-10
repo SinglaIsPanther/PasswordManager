@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Password Manager - Web Vault</title>
+    <!-- PeerJS & QRCode Library -->
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #070F1E 0%, #0D1E38 50%, #0A1629 100%);
+            --card-bg: rgba(18, 34, 58, 0.75);
+            --card-border: rgba(0, 150, 255, 0.25);
+            --card-hover: rgba(24, 46, 78, 0.9);
+            --accent-blue: #007AFF;
+            --accent-cyan: #00D2FF;
+            --accent-gold: #F5A623;
+            --accent-green: #34C759;
+            --accent-red: #FF3B30;
+            --text-main: #FFFFFF;
+            --text-sub: #A0B3C9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Top Navigation */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 36px;
+            background: rgba(10, 20, 36, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #007AFF, #00C6FF);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 14px rgba(0, 122, 255, 0.4);
+        }
+
+        .logo-text h1 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-text p {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-gold);
+            box-shadow: 0 0 8px var(--accent-gold);
+        }
+
+        .status-dot.connected {
+            background: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
+        }
+
+        /* Main Container */
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+        }
+
+        /* Pairing Card */
+        #pairing-section {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(16px);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .badge-pill {
+            display: inline-block;
+            padding: 4px 14px;
+            background: rgba(0, 122, 255, 0.15);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: 0.8px;
+            margin-bottom: 16px;
+        }
+
+        .qr-wrapper {
+            background: #FFFFFF;
+            padding: 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin: 24px 0 20px 0;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        #qrcode canvas, #qrcode img {
+            display: block;
+            margin: 0 auto;
+        }
+
+        .pairing-steps {
+            text-align: left;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-top: 20px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-sub);
+        }
+
+        .pairing-steps span {
+            color: #FFFFFF;
+            font-weight: 600;
+        }
+
+        /* Dashboard Section */
+        #vault-section {
+            display: none;
+            width: 100%;
+            max-width: 1100px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .vault-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 280px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 20px 14px 44px;
+            background: rgba(18, 34, 58, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: #FFFFFF;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 12px rgba(0, 210, 255, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            opacity: 0.6;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #007AFF, #0056C6);
+            color: #FFFFFF;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 122, 255, 0.4);
+        }
+
+        .btn-disconnect {
+            background: rgba(255, 59, 48, 0.15);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            color: #FF6961;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-disconnect:hover {
+            background: rgba(255, 59, 48, 0.25);
+            color: #FFFFFF;
+        }
+
+        /* Password Cards Grid */
+        .vault-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 18px;
+        }
+
+        .item-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 20px;
+            backdrop-filter: blur(12px);
+            transition: all 0.25s;
+            position: relative;
+        }
+
+        .item-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-cyan);
+            background: var(--card-hover);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .card-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #1E3E62, #0B192C);
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+
+        .card-title h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .card-title span {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .field-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 8px 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .field-label {
+            color: var(--text-sub);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .field-value {
+            font-family: monospace;
+            font-size: 13px;
+            color: #FFFFFF;
+            max-width: 170px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: var(--accent-cyan);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(0, 210, 255, 0.2);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-card {
+            background: #102138;
+            border: 1px solid var(--accent-cyan);
+            border-radius: 24px;
+            width: 90%;
+            max-width: 440px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-card h2 {
+            font-size: 20px;
+            margin-bottom: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            color: #FFFFFF;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--accent-cyan);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-sub);
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        /* Toast notification */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(14, 28, 48, 0.95);
+            border: 1px solid var(--accent-cyan);
+            color: #FFFFFF;
+            padding: 10px 22px;
+            border-radius: 20px;
+            font-size: 13px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.25s;
+            pointer-events: none;
+            z-index: 2000;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo-group">
+            <div class="logo-icon">🔒</div>
+            <div class="logo-text">
+                <h1>Secure Password Manager</h1>
+                <p>Web Vault • Peer-to-Peer End-to-End Encrypted</p>
+            </div>
+        </div>
+        <div class="status-pill">
+            <div class="status-dot" id="status-dot"></div>
+            <span id="status-text">Generating Pairing QR...</span>
+        </div>
+    </header>
+
+    <main>
+        <!-- Step 1: Pairing View -->
+        <section id="pairing-section">
+            <div class="badge-pill">AES-256 ZERO-CLOUD SYNC</div>
+            <h2>Pair with Android Phone</h2>
+            <p style="color: var(--text-sub); font-size: 14px; margin-top: 6px;">
+                Connect securely across any Wi-Fi or Mobile Data
+            </p>
+
+            <div class="qr-wrapper">
+                <div id="qrcode"></div>
+            </div>
+
+            <p style="font-size: 13px; color: var(--accent-cyan); font-weight: 600;" id="pairing-code-hint">
+                Loading secure pairing channel...
+            </p>
+
+            <div class="pairing-steps">
+                <p>1. Open <span>Secure Password Manager</span> on Android.</p>
+                <p>2. Tap <span>Web Connect</span> on the dashboard.</p>
+                <p>3. Tap <span>Scan QR Code</span> and point your camera here.</p>
+            </div>
+        </section>
+
+        <!-- Step 2: Vault Dashboard View -->
+        <section id="vault-section">
+            <div class="vault-controls">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Search passwords, accounts, cards..." oninput="filterPasswords()">
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn-primary" onclick="openAddModal()">➕ Add Password</button>
+                    <button class="btn-disconnect" onclick="disconnectVault()">Disconnect</button>
+                </div>
+            </div>
+
+            <!-- Cards Container -->
+            <div class="vault-grid" id="passwordGrid">
+                <!-- Injected via JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Add Password Modal -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal-card">
+            <h2>Add New Credential</h2>
+            <div class="form-group">
+                <label>Account Title</label>
+                <input type="text" id="newTitle" placeholder="e.g. Google, GitHub, Bank">
+            </div>
+            <div class="form-group">
+                <label>Username / Email</label>
+                <input type="text" id="newUser" placeholder="e.g. john@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="text" id="newPass" placeholder="Enter or generate password">
+            </div>
+            <div class="form-group">
+                <label>Website URL (Optional)</label>
+                <input type="text" id="newUrl" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <label>Private Notes (Optional)</label>
+                <textarea id="newNotes" rows="2" placeholder="Recovery notes, hints..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveNewPassword()">Save to Phone</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast">Copied to clipboard</div>
+
+    <script>
+        // Global State
+        let peer = null;
+        let peerConnection = null;
+        let encryptionKeyHex = null;
+        let rawCryptoKey = null;
+        let vaultRecords = [];
+
+        // Generate cryptographic AES-GCM 256-bit key
+        async function generateCryptoKey() {
+            const key = await window.crypto.subtle.generateKey(
+                { name: "AES-GCM", length: 256 },
+                true,
+                ["encrypt", "decrypt"]
+            );
+            const exported = await window.crypto.subtle.exportKey("raw", key);
+            encryptionKeyHex = Array.from(new Uint8Array(exported))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+            rawCryptoKey = key;
+            return encryptionKeyHex;
+        }
+
+        // Initialize PeerJS
+        async function initP2P() {
+            await generateCryptoKey();
+            const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const peerId = "pm-vault-" + randomSuffix;
+
+            peer = new Peer(peerId, {
+                debug: 1
+            });
+
+            peer.on('open', (id) => {
+                document.getElementById('status-text').innerText = "Waiting for Scan...";
+                document.getElementById('pairing-code-hint').innerText = "Session ID: " + randomSuffix;
+
+                // Create QR payload with PeerID and AES Key
+                const payload = JSON.stringify({
+                    peerId: id,
+                    key: encryptionKeyHex,
+                    v: 1
+                });
+
+                // Render QR Code
+                document.getElementById('qrcode').innerHTML = "";
+                new QRCode(document.getElementById("qrcode"), {
+                    text: payload,
+                    width: 220,
+                    height: 220,
+                    colorDark : "#0A1629",
+                    colorLight : "#FFFFFF",
+                    correctLevel : QRCode.CorrectLevel.M
+                });
+            });
+
+            peer.on('connection', (conn) => {
+                peerConnection = conn;
+                setupConnectionHandlers();
+            });
+
+            peer.on('error', (err) => {
+                console.error("PeerJS error:", err);
+                document.getElementById('status-text').innerText = "Network Retry...";
+                setTimeout(initP2P, 4000);
+            });
+        }
+
+        function setupConnectionHandlers() {
+            peerConnection.on('open', () => {
+                document.getElementById('status-dot').classList.add('connected');
+                document.getElementById('status-text').innerText = "Live Encrypted Sync";
+                showToast("Connected to Phone!");
+
+                // Switch UI
+                document.getElementById('pairing-section').style.display = 'none';
+                document.getElementById('vault-section').style.display = 'block';
+
+                // Request passwords from phone
+                sendEncrypted({ action: "GET_PASSWORDS" });
+            });
+
+            peerConnection.on('data', async (encryptedPayload) => {
+                try {
+                    const decrypted = await decryptMessage(encryptedPayload);
+                    handleIncomingData(decrypted);
+                } catch (e) {
+                    console.error("Decryption failed:", e);
+                }
+            });
+
+            peerConnection.on('close', () => {
+                disconnectVault();
+            });
+        }
+
+        // Encrypt message with AES-GCM
+        async function encryptMessage(obj) {
+            const iv = window.crypto.getRandomValues(new Uint8Array(12));
+            const encoded = new TextEncoder().encode(JSON.stringify(obj));
+            const ciphertext = await window.crypto.subtle.encrypt(
+                { name: "AES-GCM", iv: iv },
+                rawCryptoKey,
+                encoded
+            );
+            return {
+                iv: Array.from(iv),
+                data: Array.from(new Uint8Array(ciphertext))
+            };
+        }
+
+        // Decrypt message with AES-GCM
+        async function decryptMessage(payload) {
+            if (typeof payload === 'string') {
+                payload = JSON.parse(payload);
+            }
+            const iv = new Uint8Array(payload.iv);
+            const data = new Uint8Array(payload.data);
+            const decrypted = await window.crypto.subtle.decrypt(
+                { name: "AES-GCM", iv: iv },
+                rawCryptoKey,
+                data
+            );
+            return JSON.parse(new TextDecoder().decode(decrypted));
+        }
+
+        async function sendEncrypted(data) {
+            if (peerConnection && peerConnection.open) {
+                const enc = await encryptMessage(data);
+                peerConnection.send(enc);
+            }
+        }
+
+        function handleIncomingData(msg) {
+            if (msg.action === "SYNC_VAULT" && Array.isArray(msg.records)) {
+                vaultRecords = msg.records;
+                renderPasswordList(vaultRecords);
+                showToast(`Synced ${vaultRecords.length} records`);
+            } else if (msg.action === "SAVE_SUCCESS") {
+                showToast("Saved to Phone!");
+                closeAddModal();
+                sendEncrypted({ action: "GET_PASSWORDS" });
+            }
+        }
+
+        function renderPasswordList(items) {
+            const grid = document.getElementById('passwordGrid');
+            if (items.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-sub); padding: 40px;">No credentials found in vault.</p>';
+                return;
+            }
+
+            grid.innerHTML = items.map((item, idx) => {
+                const initial = (item.title || "P").substring(0, 1).toUpperCase();
+                return `
+                    <div class="item-card">
+                        <div class="card-header">
+                            <div class="card-avatar">${initial}</div>
+                            <div class="card-title">
+                                <h3>${escapeHtml(item.title)}</h3>
+                                <span>${escapeHtml(item.category || "Login")}</span>
+                            </div>
+                        </div>
+
+                        <div class="field-row">
+                            <span class="field-label">User</span>
+                            <span class="field-value">${escapeHtml(item.username || "")}</span>
+                            <button class="copy-btn" onclick="copyText('${escapeJs(item.username)}')">Copy</button>
+                        </div>
+
+                        <div class="field-row">
+                            <span class="field-label">Pass</span>
+                            <span class="field-value" id="pwd-${idx}">••••••••••••</span>
+                            <div style="display: flex; gap: 4px;">
+                                <button class="copy-btn" onclick="togglePass(${idx}, '${escapeJs(item.password)}')">👁</button>
+                                <button class="copy-btn" onclick="copyText('${escapeJs(item.password)}')">Copy</button>
+                            </div>
+                        </div>
+
+                        ${item.url ? `
+                        <div class="field-row">
+                            <span class="field-label">URL</span>
+                            <a href="${escapeHtml(item.url)}" target="_blank" class="field-value" style="color: var(--accent-cyan); text-decoration: none;">${escapeHtml(item.url)}</a>
+                        </div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterPasswords() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = vaultRecords.filter(r => 
+                (r.title && r.title.toLowerCase().includes(q)) ||
+                (r.username && r.username.toLowerCase().includes(q))
+            );
+            renderPasswordList(filtered);
+        }
+
+        function togglePass(idx, realPassword) {
+            const el = document.getElementById(`pwd-${idx}`);
+            if (el.innerText === '••••••••••••') {
+                el.innerText = realPassword;
+            } else {
+                el.innerText = '••••••••••••';
+            }
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Copied to clipboard!");
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 2200);
+        }
+
+        function openAddModal() {
+            document.getElementById('addModal').style.display = 'flex';
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+            document.getElementById('newTitle').value = "";
+            document.getElementById('newUser').value = "";
+            document.getElementById('newPass').value = "";
+            document.getElementById('newUrl').value = "";
+            document.getElementById('newNotes').value = "";
+        }
+
+        function saveNewPassword() {
+            const title = document.getElementById('newTitle').value.trim();
+            const user = document.getElementById('newUser').value.trim();
+            const pass = document.getElementById('newPass').value.trim();
+            const url = document.getElementById('newUrl').value.trim();
+            const notes = document.getElementById('newNotes').value.trim();
+
+            if (!title || !pass) {
+                alert("Please fill Title and Password");
+                return;
+            }
+
+            sendEncrypted({
+                action: "ADD_PASSWORD",
+                record: {
+                    title: title,
+                    username: user,
+                    password: pass,
+                    url: url,
+                    notes: notes
+                }
+            });
+        }
+
+        function disconnectVault() {
+            vaultRecords = [];
+            if (peerConnection) {
+                try { peerConnection.close(); } catch(e){}
+                peerConnection = null;
+            }
+            document.getElementById('vault-section').style.display = 'none';
+            document.getElementById('pairing-section').style.display = 'block';
+            document.getElementById('status-dot').classList.remove('connected');
+            document.getElementById('status-text').innerText = "Disconnected";
+            showToast("Vault Disconnected");
+            setTimeout(initP2P, 1000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, function(m) {
+                return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
+            });
+        }
+
+        function escapeJs(str) {
+            if (!str) return '';
+            return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+        }
+
+        // Start on page load
+        window.onload = initP2P;
+    </script>
+</body>
+</html>

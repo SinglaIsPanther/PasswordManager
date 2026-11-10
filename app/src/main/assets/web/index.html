@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Password Manager - Chrome Web Access</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Top App Navigation Bar -->
+    <header class="app-header">
+        <div class="header-left">
+            <div class="logo-circle">
+                <svg viewBox="0 0 24 24" class="logo-icon"><path d="M12,1L3,5v6c0,5.55 3.84,10.74 9,12 5.16,-1.26 9,-6.45 9,-12V5l-9,-4zm0,6c1.66,0 3,1.34 3,3v1h1v5H8v-5h1v-1c0,-1.66 1.34,-3 3,-3zm0,2c-0.55,0 -1,0.45 -1,1v1h2v-1c0,-0.55 -0.45,-1 -1,-1z"/></svg>
+            </div>
+            <div>
+                <h1 class="header-title">Secure Password Manager</h1>
+                <p class="header-subtitle">सुरक्षित पासवर्ड मैनेजर - Computer Web Dashboard</p>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <!-- Manual Sync Button -->
+            <button id="btnManualSync" class="btn btn-sm btn-outline" style="display:none;" title="डेटा तुरंत सिंक करें">🔄 सिंक करें</button>
+
+            <!-- Sync Status Indicator -->
+            <div id="syncIndicator" class="sync-pill sync-connected" title="सिंक स्थिति">
+                <span class="sync-dot"></span>
+                <span id="syncText">सिंक तैयार</span>
+            </div>
+
+            <!-- Top Action Buttons -->
+            <button id="btnHeaderGenerator" class="btn btn-outline" style="display:none;">🔑 पासवर्ड जनरेटर</button>
+            <button id="btnHeaderAdd" class="btn btn-primary" style="display:none;">+ नया पासवर्ड</button>
+            <button id="btnHeaderLogout" class="btn btn-danger-outline" style="display:none;">लॉगआउट</button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="main-container">
+
+        <!-- 1. PAIRING VIEW (यदि कंप्यूटर अभी तक मोबाइल से पेयर नहीं है) -->
+        <section id="viewPairing" class="card card-center" style="display:none;">
+            <div class="center-content">
+                <div class="icon-avatar">📱</div>
+                <h2>कंप्यूटर पेयरिंग (Browser Pairing)</h2>
+                <p class="text-secondary">मोबाइल स्क्रीन पर दिख रहा 6-अंकीय पेयरिंग कोड यहाँ दर्ज करें:</p>
+
+                <div class="pairing-form">
+                    <input type="text" id="inputPairingCode" maxlength="6" placeholder="उदा. 482910" class="input-code" autocomplete="off" />
+                    <button id="btnSubmitPairing" class="btn btn-primary btn-block">डिवाइस पेयर करें</button>
+                </div>
+
+                <div id="pairingStatusBox" class="status-box" style="display:none;">
+                    <div class="spinner"></div>
+                    <p id="pairingStatusText">मोबाइल स्क्रीन पर अनुमोदन (Approval) की प्रतीक्षा की जा रही है...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. LOGIN VIEW (यदि तिजोरी लॉक है) -->
+        <section id="viewLogin" class="card card-center" style="display:none;">
+            <div class="center-content">
+                <div class="icon-avatar">🔐</div>
+                <h2>तिजोरी अनलॉक करें</h2>
+                <p class="text-secondary">क्रेडेंशियल्स एक्सेस करने के लिए अपना मास्टर पासवर्ड दर्ज करें:</p>
+
+                <div class="login-form">
+                    <div class="password-input-group">
+                        <input type="password" id="inputMasterPassword" placeholder="मास्टर पासवर्ड दर्ज करें" class="input-field" />
+                        <button type="button" id="btnToggleMasterPw" class="btn-toggle-eye">👁️</button>
+                    </div>
+                    <div id="loginErrorBox" class="alert-error" style="display:none;"></div>
+                    <button id="btnSubmitLogin" class="btn btn-primary btn-block">अनलॉक करें (Unlock Vault)</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. DASHBOARD VIEW (सफल पेयरिंग और लॉगिन के बाद) -->
+        <section id="viewDashboard" style="display:none;">
+
+            <!-- Stats Bar -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-num" id="statTotalCount">0</span>
+                    <span class="stat-label">कुल सुरक्षित खाते</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-num" id="statFavCount" style="color:#FFB300;">0</span>
+                    <span class="stat-label">पसंदीदा खाते (Favorites)</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-num" style="color:#2E7D32;">Active</span>
+                    <span class="stat-label">डेटाबेस: मोबाइल SQLite (AES-256)</span>
+                </div>
+            </div>
+
+            <!-- Search & Filter Controls -->
+            <div class="controls-bar">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="inputSearch" placeholder="वेबसाइट, यूजरनेम या रोल खोजें... (पासवर्ड कभी सर्च नहीं होता)" class="search-input" />
+                    <button id="btnClearSearch" class="btn-clear" style="display:none;">✕</button>
+                </div>
+
+                <div class="filter-tabs">
+                    <button class="tab-btn active" data-sort="RECENT">हाल ही में जोड़े गए</button>
+                    <button class="tab-btn" data-sort="FAVORITES_FIRST">पसंदीदा (Favorites)</button>
+                    <button class="tab-btn" data-sort="A_Z">A से Z</button>
+                    <button class="tab-btn" data-sort="Z_A">Z से A</button>
+                </div>
+            </div>
+
+            <!-- Passwords Table Card -->
+            <div class="card table-card">
+                <div class="table-responsive">
+                    <table class="passwords-table">
+                        <thead>
+                            <tr>
+                                <th>वेबसाइट / पोर्टल</th>
+                                <th>यूजरनेम / ID</th>
+                                <th>भूमिका (Role)</th>
+                                <th>पासवर्ड</th>
+                                <th>स्क्रीनशॉट</th>
+                                <th style="text-align: right;">क्रियाएं (Actions)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBodyPasswords">
+                            <!-- Rows injected via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state" style="display:none;">
+                    <div class="empty-icon">📂</div>
+                    <p id="emptyStateText">कोई पासवर्ड रिकॉर्ड नहीं मिला।</p>
+                    <button id="btnEmptyAdd" class="btn btn-primary" style="margin-top:12px;">+ नया पासवर्ड जोड़ें</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL: ADD / EDIT PASSWORD -->
+    <div id="modalAddEdit" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="modalAddEditTitle">नया पासवर्ड जोड़ें</h3>
+                <button class="btn-close-modal" data-close="modalAddEdit">✕</button>
+            </div>
+            <form id="formAddEdit" class="modal-body">
+                <input type="hidden" id="formRecordId" value="" />
+                <input type="hidden" id="formRecordVersion" value="1" />
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>वेबसाइट का नाम *</label>
+                        <input type="text" id="formWebsiteName" required placeholder="उदा. SSO Rajasthan" class="input-field" />
+                    </div>
+                    <div class="form-group">
+                        <label>वेबसाइट URL</label>
+                        <input type="url" id="formWebsiteUrl" placeholder="उदा. https://sso.rajasthan.gov.in" class="input-field" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>यूजरनेम / Login ID *</label>
+                        <input type="text" id="formUsername" required placeholder="उदा. operator123" class="input-field" />
+                    </div>
+                    <div class="form-group">
+                        <label>पासवर्ड *</label>
+                        <div class="password-input-group">
+                            <input type="text" id="formPassword" required placeholder="लॉगिन पासवर्ड" class="input-field" />
+                            <button type="button" id="btnFormGenerate" class="btn btn-outline btn-sm" title="मजबूत पासवर्ड जनरेट करें">नया बनाएं</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>यूज़र रोल / पद</label>
+                        <input type="text" id="formRole" list="roleSuggestions" placeholder="उदा. Computer Operator" class="input-field" />
+                        <datalist id="roleSuggestions">
+                            <option value="Computer Operator">
+                            <option value="Senior Operator">
+                            <option value="Administrator">
+                            <option value="Data Entry Operator">
+                            <option value="Clerk">
+                            <option value="Accountant">
+                            <option value="Office Assistant">
+                            <option value="Supervisor">
+                        </datalist>
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: flex-end; padding-bottom: 8px;">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="formIsFavorite" />
+                            <span>पसंदीदा सूची में जोड़ें (Favorite)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>अतिरिक्त नोट्स</label>
+                    <textarea id="formNotes" rows="2" placeholder="महत्वपूर्ण लॉगिन नोट्स..." class="input-field"></textarea>
+                </div>
+
+                <!-- Screenshot Attachment -->
+                <div class="form-group">
+                    <label>लॉगिन पेज स्क्रीनशॉट (वैकल्पिक)</label>
+                    <input type="file" id="formScreenshotInput" accept="image/png, image/jpeg, image/jpg, image/webp" class="input-file" />
+                    <div id="screenshotPreviewBox" class="screenshot-preview-box" style="display:none;">
+                        <img id="screenshotPreviewImg" src="" alt="Screenshot Preview" />
+                        <button type="button" id="btnRemoveScreenshot" class="btn-remove-img">हटाएं</button>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-close="modalAddEdit">रद्द करें</button>
+                    <button type="submit" id="btnSaveRecord" class="btn btn-primary">सुरक्षित सहेजें (Save)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: VIEW DETAILS & FULL SCREENSHOT -->
+    <div id="modalDetails" class="modal-overlay" style="display:none;">
+        <div class="modal-box modal-lg">
+            <div class="modal-header">
+                <h3 id="detailsTitle">खाते का पूरा विवरण</h3>
+                <button class="btn-close-modal" data-close="modalDetails">✕</button>
+            </div>
+            <div class="modal-body details-body">
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <label>वेबसाइट नाम:</label>
+                        <h4 id="detWebsiteName">-</h4>
+                    </div>
+                    <div class="detail-item">
+                        <label>वेबसाइट पता:</label>
+                        <div id="detUrlContainer">
+                            <a id="detWebsiteUrl" href="#" target="_blank" rel="noopener">-</a>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <label>यूजरनेम / ID:</label>
+                        <div class="copy-field">
+                            <span id="detUsername">-</span>
+                            <button id="btnCopyDetUser" class="btn btn-sm btn-outline">कॉपी</button>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <label>पासवर्ड:</label>
+                        <div class="copy-field">
+                            <span id="detPassword" class="pw-masked">••••••••••••</span>
+                            <button id="btnToggleDetPw" class="btn btn-sm btn-outline">दिखाएं</button>
+                            <button id="btnCopyDetPw" class="btn btn-sm btn-success">कॉपी</button>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <label>रोल (Role):</label>
+                        <span id="detRole" class="badge-role">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>अंतिम अपडेट:</label>
+                        <span id="detUpdatedAt">-</span>
+                    </div>
+                </div>
+
+                <div id="detNotesBox" class="detail-notes" style="display:none;">
+                    <label>नोट्स / अतिरिक्त विवरण:</label>
+                    <p id="detNotes"></p>
+                </div>
+
+                <div id="detScreenshotBox" class="detail-screenshot" style="display:none;">
+                    <label>सहेजा गया स्क्रीनशॉट (Click to expand):</label>
+                    <div class="screenshot-frame">
+                        <img id="detScreenshotImg" src="" alt="Screenshot" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnDetailsEdit" class="btn btn-outline">संपादित करें (Edit)</button>
+                <button id="btnDetailsDelete" class="btn btn-danger-outline">हटाएं (Delete)</button>
+                <button type="button" class="btn btn-primary" data-close="modalDetails">बंद करें</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PASSWORD GENERATOR -->
+    <div id="modalGenerator" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>मजबूत पासवर्ड जनरेटर</h3>
+                <button class="btn-close-modal" data-close="modalGenerator">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="generated-box">
+                    <span id="genResultText" class="gen-pw">••••••••••••••••</span>
+                    <button id="btnGenCopy" class="btn btn-sm btn-success">कॉपी</button>
+                </div>
+
+                <div class="gen-slider-group">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <label>पासवर्ड लंबाई (4-15):</label>
+                        <strong id="genLengthVal">12</strong>
+                    </div>
+                    <input type="range" id="genLengthRange" min="4" max="15" value="12" class="range-slider" />
+                </div>
+
+                <div class="gen-checkboxes">
+                    <label><input type="checkbox" id="genUpper" checked /> बड़े अक्षर (A-Z)</label>
+                    <label><input type="checkbox" id="genLower" checked /> छोटे अक्षर (a-z)</label>
+                    <label><input type="checkbox" id="genNumbers" checked /> अंक (0-9)</label>
+                    <label><input type="checkbox" id="genSymbols" checked /> विशेष चिन्ह (!@#$%^&*)</label>
+                </div>
+
+                <button id="btnGenRefresh" class="btn btn-outline btn-block" style="margin-top:16px;">🔄 नया पासवर्ड बनाएं</button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-close="modalGenerator">ठीक है</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Popup -->
+    <div id="toast" class="toast-popup"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

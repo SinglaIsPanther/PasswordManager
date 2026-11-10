@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Biometric Authentication (Optional Fingerprint Login) -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+
+    <!-- Embedded Web Server & Network Permissions (Same Wi-Fi & VPN Connectivity) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:name=".PasswordApp"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.PasswordManager"
+        android:usesCleartextTraffic="true">
+
+        <!-- Splash Activity (Entry Point) -->
+        <activity
+            android:name=".activities.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PasswordManager">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Setup Vault Activity -->
+        <activity
+            android:name=".activities.SetupActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Master Password & Biometric Login Activity -->
+        <activity
+            android:name=".activities.LoginActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Main Dashboard Activity -->
+        <activity
+            android:name=".activities.DashboardActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
+
+        <!-- Computer Web Access Activity -->
+        <activity
+            android:name=".activities.WebAccessActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
+
+        <!-- Add & Edit Password Activity -->
+        <activity
+            android:name=".activities.AddPasswordActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Password List Activity -->
+        <activity
+            android:name=".activities.PasswordListActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
+
+        <!-- Password Details Activity -->
+        <activity
+            android:name=".activities.PasswordDetailsActivity"
+            android:exported="false" />
+
+        <!-- Password Generator Activity -->
+        <activity
+            android:name=".activities.PasswordGeneratorActivity"
+            android:exported="false" />
+
+        <!-- Fullscreen Screenshot Preview Activity -->
+        <activity
+            android:name=".activities.ScreenshotViewerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.PasswordManager.FullScreen" />
+
+        <!-- Application Settings Activity -->
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:exported="false" />
+
+        <!-- Embedded Web Server Foreground Service -->
+        <service
+            android:name=".server.WebServerService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Embedded local web server for same-Wi-Fi and VPN computer browser pairing and live password synchronization." />
+        </service>
+
+    </application>
+
+</manifest>

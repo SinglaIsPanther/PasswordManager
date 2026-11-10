@@ -1,0 +1,101 @@
+<resources>
+    <string name="app_name">Secure Password Manager</string>
+    <string name="app_name_hi">सुरक्षित पासवर्ड मैनेजर</string>
+    <string name="app_tagline">सुरक्षित, एन्क्रिप्टेड और विश्वसनीय पासवर्ड तिजोरी</string>
+
+    <!-- Setup & Login -->
+    <string name="setup_title">मास्टर पासवर्ड सेटअप करें</string>
+    <string name="setup_subtitle">यह मास्टर पासवर्ड आपकी तिजोरी की मुख्य चाबी है। इसे सुरक्षित रखें।</string>
+    <string name="master_password_hint">मास्टर पासवर्ड (कम से कम 6 अक्षर)</string>
+    <string name="confirm_master_password_hint">मास्टर पासवर्ड की पुष्टि करें</string>
+    <string name="security_question_hint">सुरक्षा प्रश्न (वैकल्पिक)</string>
+    <string name="security_answer_hint">सुरक्षा उत्तर (वैकल्पिक)</string>
+    <string name="btn_create_vault">तिजोरी बनाएं (Setup Vault)</string>
+    <string name="login_title">तिजोरी अनलॉक करें</string>
+    <string name="login_subtitle">पासवर्ड देखने के लिए अपना मास्टर पासवर्ड दर्ज करें</string>
+    <string name="enter_master_password">मास्टर पासवर्ड दर्ज करें</string>
+    <string name="btn_unlock">लॉगिन (Unlock)</string>
+    <string name="btn_biometric_login">बायोमेट्रिक से अनलॉक करें</string>
+    <string name="forgot_password">मास्टर पासवर्ड भूल गए?</string>
+    <string name="forgot_password_warning">सुरक्षा चेतावनी: जीरो-नॉलेज एन्क्रिप्शन के कारण बिना मास्टर पासवर्ड के पुराना डेटा डिक्रिप्ट नहीं किया जा सकता। यदि रीसेट करते हैं तो पुराना डेटा नष्ट हो जाएगा। क्या आप नया डेटाबेस शुरू करना चाहते हैं?</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_welcome">नमस्ते! आपकी सुरक्षित तिजोरी</string>
+    <string name="total_passwords">कुल सेव किए गए खाते</string>
+    <string name="recently_added">हाल ही में जोड़े गए खाते</string>
+    <string name="search_hint">वेबसाइट, यूजरनेम या रोल खोजें…</string>
+    <string name="btn_add_password">नया पासवर्ड जोड़ें</string>
+    <string name="btn_all_passwords">सभी पासवर्ड्स</string>
+    <string name="btn_password_generator">पासवर्ड जनरेटर</string>
+    <string name="btn_favorites">पसंदीदा (Favorites)</string>
+    <string name="btn_settings">सेटिंग्स</string>
+    <string name="btn_logout">सुरक्षित लॉगआउट</string>
+
+    <!-- Add/Edit Password Form -->
+    <string name="title_add_password">नया पासवर्ड जोड़ें</string>
+    <string name="title_edit_password">पासवर्ड विवरण संपादित करें</string>
+    <string name="website_name_hint">वेबसाइट का नाम (उदा. SSO Rajasthan)</string>
+    <string name="website_url_hint">वेबसाइट URL (उदा. https://sso.rajasthan.gov.in)</string>
+    <string name="username_hint">यूजरनेम / Login ID / Email</string>
+    <string name="password_hint">पासवर्ड (Login Password)</string>
+    <string name="role_hint">यूज़र रोल / पद (उदा. Computer Operator)</string>
+    <string name="notes_hint">अतिरिक्त नोट्स या महत्वपूर्ण जानकारी</string>
+    <string name="btn_choose_screenshot">स्क्रीनशॉट जोड़ें (Photo Picker)</string>
+    <string name="btn_change_screenshot">स्क्रीनशॉट बदलें</string>
+    <string name="btn_remove_screenshot">स्क्रीनशॉट हटाएं</string>
+    <string name="btn_generate">नया बनाएं</string>
+    <string name="btn_save">सुरक्षित सेव करें (Save)</string>
+    <string name="btn_cancel">रद्द करें (Cancel)</string>
+    <string name="add_to_favorites">पसंदीदा सूची में जोड़ें</string>
+
+    <!-- Details Screen -->
+    <string name="title_details">खाते का पूरा विवरण</string>
+    <string name="btn_copy_username">यूजरनेम कॉपी करें</string>
+    <string name="btn_copy_password">पासवर्ड कॉपी करें</string>
+    <string name="btn_open_website">वेबसाइट खोलें</string>
+    <string name="btn_view_screenshot">स्क्रीनशॉट देखें</string>
+    <string name="btn_edit">संपादित करें (Edit)</string>
+    <string name="btn_delete">हटाएं (Delete)</string>
+    <string name="created_at_label">जोड़ने की तिथि:</string>
+    <string name="updated_at_label">अंतिम अपडेट:</string>
+
+    <!-- Password Generator -->
+    <string name="title_generator">मजबूत पासवर्ड जनरेटर</string>
+    <string name="password_length">पासवर्ड लंबाई: %d</string>
+    <string name="include_uppercase">बड़े अक्षर शामिल करें (A-Z)</string>
+    <string name="include_lowercase">छोटे अक्षर शामिल करें (a-z)</string>
+    <string name="include_numbers">अंक शामिल करें (0-9)</string>
+    <string name="include_symbols">विशेष चिन्ह शामिल करें (!@#$%^*)</string>
+    <string name="btn_generate_new">नया पासवर्ड जनरेट करें</string>
+    <string name="btn_copy_generated">पासवर्ड कॉपी करें</string>
+    <string name="btn_use_generated">इस पासवर्ड का उपयोग करें</string>
+    <string name="btn_clear_generator">साफ करें</string>
+
+    <!-- Settings -->
+    <string name="title_settings">एप्लिकेशन सेटिंग्स</string>
+    <string name="setting_change_master_pw">मास्टर पासवर्ड बदलें</string>
+    <string name="setting_biometric">बायोमेट्रिक लॉगिन (फिंगरप्रिंट)</string>
+    <string name="setting_auto_lock">ऑटो-लॉक समय सीमा</string>
+    <string name="setting_clipboard_clear">क्लिपबोर्ड ऑटो-क्लियर (30 सेकंड)</string>
+    <string name="setting_backup">एन्क्रिप्टेड बैकअप बनाएं</string>
+    <string name="setting_restore">बैकअप रीस्टोर करें</string>
+    <string name="setting_db_info">डेटाबेस जानकारी</string>
+    <string name="setting_about">एप्लिकेशन के बारे में</string>
+    <string name="setting_privacy">गोपनीयता नीति (Privacy Policy)</string>
+
+    <!-- Messages & Errors -->
+    <string name="msg_copied">क्लिपबोर्ड में कॉपी किया गया! (30 सेकंड में स्वतः हट जाएगा)</string>
+    <string name="msg_saved_success">पासवर्ड सफलतापूर्वक सुरक्षित कर लिया गया है।</string>
+    <string name="msg_updated_success">रिकॉर्ड सफलतापूर्वक अपडेट कर दिया गया।</string>
+    <string name="msg_deleted_success">रिकॉर्ड सफलतापूर्वक हटा दिया गया।</string>
+    <string name="msg_empty_fields">कृपया आवश्यक फ़ील्ड भरें (वेबसाइट नाम, यूजरनेम और पासवर्ड)।</string>
+    <string name="msg_password_mismatch">दोनों पासवर्ड मेल नहीं खाते। कृपया पुनः जांचें।</string>
+    <string name="msg_wrong_password">गलत मास्टर पासवर्ड! कृपया सही पासवर्ड डालें।</string>
+    <string name="msg_rate_limit">लगातार गलत पासवर्ड! कृपया %d सेकंड बाद पुनः प्रयास करें।</string>
+    <string name="msg_confirm_delete">क्या आप वाकई इस रिकॉर्ड को स्थायी रूप से हटाना चाहते हैं?</string>
+    <string name="msg_no_records">कोई पासवर्ड रिकॉर्ड नहीं मिला। नया रिकॉर्ड जोड़ने के लिए + बटन दबाएं।</string>
+    <string name="msg_invalid_url">अमान्य URL! कृपया वैध वेबसाइट पता (उदा. https://example.com) दर्ज करें।</string>
+    <string name="msg_backup_success">एन्क्रिप्टेड बैकअप सफलतापूर्वक सेव हुआ: %s</string>
+    <string name="msg_restore_success">डेटाबेस सफलतापूर्वक रीस्टोर हुआ! कुल रिकॉर्ड: %d</string>
+    <string name="msg_restore_failed">बैकअप फ़ाइल रीस्टोर करने में त्रुटि! पासवर्ड या डेटा अमान्य है।</string>
+</resources>
