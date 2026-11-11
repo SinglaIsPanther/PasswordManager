@@ -45,7 +45,6 @@ public class SettingsActivity extends BaseSecurityActivity {
 
     private LinearLayout layoutDbInfo;
     private TextView textDbCount;
-    private LinearLayout layoutGithubRepo;
     private LinearLayout layoutPrivacy;
     private LinearLayout layoutAbout;
     private MaterialButton btnLogout;
@@ -95,7 +94,6 @@ public class SettingsActivity extends BaseSecurityActivity {
 
         layoutDbInfo = findViewById(R.id.layout_setting_db_info);
         textDbCount = findViewById(R.id.text_setting_db_count);
-        layoutGithubRepo = findViewById(R.id.layout_setting_github_repo);
         layoutPrivacy = findViewById(R.id.layout_setting_privacy);
         layoutAbout = findViewById(R.id.layout_setting_about);
         btnLogout = findViewById(R.id.btn_setting_logout);
@@ -135,9 +133,6 @@ public class SettingsActivity extends BaseSecurityActivity {
         layoutRestoreBackup.setOnClickListener(v -> openBackupLauncher.launch(new String[]{"*/*"}));
 
         layoutDbInfo.setOnClickListener(v -> showDatabaseInfoDialog());
-        if (layoutGithubRepo != null) {
-            layoutGithubRepo.setOnClickListener(v -> showGithubRepoDialog());
-        }
         layoutPrivacy.setOnClickListener(v -> showPrivacyPolicyDialog());
         layoutAbout.setOnClickListener(v -> showAboutAppDialog());
 
@@ -333,48 +328,6 @@ public class SettingsActivity extends BaseSecurityActivity {
                 .show();
     }
 
-    private void showGithubRepoDialog() {
-        final String webUrl = "https://singlaispanther.github.io/PasswordManager/";
-        final String repoName = "SinglaIsPanther/PasswordManager";
-
-        String message = "🌐 ऑनलाइन वेब तिजोरी (Web Vault Link):\n"
-                + webUrl + "\n\n"
-                + "📦 GitHub Repository:\n"
-                + repoName + "\n\n"
-                + "इस लिंक को कंप्यूटर/लैपटॉप के Google Chrome में खोलकर आप पासवर्ड्स देख, कॉपी और सिंक कर सकते हैं।";
-
-        new AlertDialog.Builder(this)
-                .setTitle("Web Vault & Repository")
-                .setMessage(message)
-                .setPositiveButton("ब्राउज़र में खोलें", (dialog, which) -> {
-                    try {
-                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(webUrl));
-                        startActivity(browserIntent);
-                    } catch (Exception e) {
-                        Toast.makeText(this, "ब्राउज़र खोलने में विफलता!", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNeutralButton("शेयर करें", (dialog, which) -> {
-                    try {
-                        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                        shareIntent.setType("text/plain");
-                        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Password Manager Web Vault");
-                        shareIntent.putExtra(Intent.EXTRA_TEXT, "Open Password Manager Web Vault in Chrome: " + webUrl);
-                        startActivity(Intent.createChooser(shareIntent, "वेब वॉल्ट लिंक शेयर करें"));
-                    } catch (Exception e) {
-                        Toast.makeText(this, "शेयर करने में विफलता!", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton("कॉपी करें", (dialog, which) -> {
-                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-                    if (clipboard != null) {
-                        android.content.ClipData clip = android.content.ClipData.newPlainText("Web Vault Link", webUrl);
-                        clipboard.setPrimaryClip(clip);
-                        Toast.makeText(this, "वेब वॉल्ट लिंक कॉपी हो गया!", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .show();
-    }
 
     private void showPrivacyPolicyDialog() {
         String policy = "गोपनीयता नीति (Privacy Policy - _mypassword):\n\n"
